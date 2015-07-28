@@ -1,0 +1,28 @@
+{
+  "name": "hive-shoe-interface",
+  "version": "0.0.1",
+  "description": "Hive.js shoe server interface",
+  "main": "index.js",
+  "dependencies": {
+    "shoe-bin": "1.x"
+  , "dataplex": "3.x"
+  , "through2": "2.x"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hivejs/hive-shoe-interface.git"
+  },
+  "keywords": [
+    "hivejs",
+    "hive.js"
+  ],
+  "author": "Marcel Klehr <mklehr@gmx.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hivejs/hive-shoe-interface/issues"
+  },
+  "homepage": "https://github.com/hivejs/hive-shoe-interface"
+}
