@@ -20,14 +20,16 @@ var shoe = require('shoe-bin')
   , co = require('co')
   , gulf = require('gulf')
   , through = require('through2')
+  , PassThrough = require('duplex-passthrough')
 
 module.exports = setup
-module.exports.consumes = ['hooks','sync', 'auth']
+module.exports.consumes = ['hooks','sync', 'auth', 'broadcast']
 
 function setup(plugin, imports, register) {
   var hooks = imports.hooks
     , sync = imports.sync
     , auth = imports.auth
+    , broadcast = imports.broadcast
   
   hooks.on('http:listening', function*(server) {
     sock.install(server, '/socket')
@@ -69,6 +71,15 @@ function setup(plugin, imports, register) {
       .then(function() {})
       .catch(function(er) { throw new er})
       return link
+    })
+    
+    plex.add('/document/:id/broadcast', function(opts) {
+      co(function*(){
+        if(!(yield auth.authorize(plex.user, 'document/snapshots:index', {document: opts.id}))) return
+        stream.wrapStream(broadcast.document(opts.id))
+      }).then(function(){})
+      var stream = PassThrough(null)
+      return stream
     })
 
     plex.add('/authenticate', function() {
