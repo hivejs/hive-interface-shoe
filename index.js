@@ -20,7 +20,11 @@ var shoe = require('shoe-bin')
   , co = require('co')
   , gulf = require('gulf')
   , through = require('through2')
-  , PassThrough = require('duplex-passthrough')
+  , DuplexPassThrough = require('duplex-passthrough')
+  , Duplex = require('stream').Duplex
+  , PassThrough = require('stream').PassThrough
+  , duplexify = require('duplexify')
+  , addReadStream = require('src-stream')
 
 module.exports = setup
 module.exports.consumes = ['hooks','sync', 'auth', 'broadcast']
@@ -35,6 +39,7 @@ function setup(plugin, imports, register) {
     sock.install(server, '/socket')
   })
   
+  var broadcasts = []
   var sock = shoe(function(stream) {
     var plex = dataplex()
     stream.pipe(plex).pipe(stream)
@@ -76,9 +81,33 @@ function setup(plugin, imports, register) {
     plex.add('/document/:id/broadcast', function(opts) {
       co(function*(){
         if(!(yield auth.authorize(plex.user, 'document/snapshots:index', {document: opts.id}))) return
-        stream.wrapStream(broadcast.document(opts.id))
+
+        var upstream = broadcast.document(opts.id) // the broadcast received by the other workers 
+        
+        // Write incoming local messages to upstream (other workers), as well as to all broadcasts (local clients)
+        var writable = new PassThrough
+        writable.pipe(upstream)
+        writeable.pipe(through(function(buf, enc, cb) {
+          broadcasts.forEach(function(s) {
+            s.write(buf)
+          })
+          cb()
+        }))
+        
+        // Read messages from upstream (other workers) as well as from other clients
+        var passiveBroadcast = new PassThrough // will get written to by other clients
+          , readable = upstream.pipe(addReadStream(passiveBroadcast))
+        broadcasts.push(passiveBroadcast)
+        
+        // return the magical hybrid
+        s.wrapStream(duplexify(writable, readable))
+        
+        // remove this from broadcasts if the stream ends
+        stream.on('end', function() {
+          broadcasts.splice(broadcasts.indexOf(passiveBroadcast), 1)
+        })
       }).then(function(){})
-      var stream = PassThrough(null)
+      var s = DuplexPassThrough(null)
       return stream
     })
 
