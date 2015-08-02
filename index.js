@@ -21,10 +21,6 @@ var shoe = require('shoe-bin')
   , gulf = require('gulf')
   , through = require('through2')
   , DuplexPassThrough = require('duplex-passthrough')
-  , Duplex = require('stream').Duplex
-  , PassThrough = require('stream').PassThrough
-  , duplexify = require('duplexify')
-  , addReadStream = require('src-stream')
 
 module.exports = setup
 module.exports.consumes = ['hooks','sync', 'auth', 'broadcast']
@@ -80,31 +76,12 @@ function setup(plugin, imports, register) {
     
     plex.add('/document/:id/broadcast', function(opts) {
       co(function*(){
-        if(!(yield auth.authorize(plex.user, 'document/snapshots:index', {document: opts.id}))) return
+        if(!(yield auth.authorize(plex.user, 'document/broadcast:write', {document: opts.id}))) return
 
-        var upstream = broadcast.document(opts.id) // the broadcast received by the other workers 
-        
-        // Write incoming local messages to upstream (other workers), as well as to all broadcasts (local clients)
-        var writable = new PassThrough
-        writable.pipe(upstream)
-        writeable.pipe(through(function(buf, enc, cb) {
-          broadcasts.forEach(function(s) {
-            s.write(buf)
-          })
-          cb()
-        }))
-        
-        // Read messages from upstream (other workers) as well as from other clients
-        var passiveBroadcast = new PassThrough // will get written to by other clients
-          , readable = upstream.pipe(addReadStream(passiveBroadcast))
-        broadcasts.push(passiveBroadcast)
-        
-        // return the magical hybrid
-        s.wrapStream(duplexify(writable, readable))
-        
-        // remove this from broadcasts if the stream ends
+        var broadcast = broadcast.document(opts.id)
+        s.wrapStream(broadcast)
         stream.on('end', function() {
-          broadcasts.splice(broadcasts.indexOf(passiveBroadcast), 1)
+          broadcast.end()
         })
       }).then(function(){})
       var s = DuplexPassThrough(null)

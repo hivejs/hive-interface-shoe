@@ -7,8 +7,6 @@
     "shoe-bin": "1.x"
   , "dataplex": "3.x"
   , "through2": "2.x"
-  , "duplexify": "3.x"
-  , "src-stream":"0.1.x"
   , "co": "4.x"
   },
   "peerDependencies": {
