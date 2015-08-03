@@ -20,7 +20,7 @@ var shoe = require('shoe-bin')
   , co = require('co')
   , gulf = require('gulf')
   , through = require('through2')
-  , DuplexPassThrough = require('duplex-passthrough')
+  , DuplexPassThrough = require('tmp-stream')
 
 module.exports = setup
 module.exports.consumes = ['hooks','sync', 'auth', 'broadcast']
@@ -78,14 +78,15 @@ function setup(plugin, imports, register) {
       co(function*(){
         if(!(yield auth.authorize(plex.user, 'document/broadcast:write', {document: opts.id}))) return
 
-        var broadcast = broadcast.document(opts.id)
-        s.wrapStream(broadcast)
+        var b = broadcast.document(opts.id)
+        s.replace(b)
         stream.on('end', function() {
-          broadcast.end()
+          b.end()
         })
-      }).then(function(){})
+      }).then(function(e){if(e) throw e})
+      .catch(function(e){throw e})
       var s = DuplexPassThrough(null)
-      return stream
+      return s
     })
 
     plex.add('/authenticate', function() {
