@@ -75,18 +75,11 @@ function setup(plugin, imports, register) {
     })
     
     plex.add('/document/:id/broadcast', function(opts) {
-      co(function*(){
-        if(!(yield auth.authorize(plex.user, 'document/broadcast:write', {document: opts.id}))) return
-
-        var b = broadcast.document(opts.id)
-        s.replace(b)
-        stream.on('end', function() {
-          b.end()
-        })
-      }).then(function(e){if(e) throw e})
-      .catch(function(e){throw e})
-      var s = DuplexPassThrough(null)
-      return s
+      var b = broadcast.document(opts.id, plex.user)
+      stream.on('end', function() {
+        b.end()
+      })
+      return b
     })
 
     plex.add('/authenticate', function() {
