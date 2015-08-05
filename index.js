@@ -30,11 +30,11 @@ function setup(plugin, imports, register) {
     , sync = imports.sync
     , auth = imports.auth
     , broadcast = imports.broadcast
-  
+
   hooks.on('http:listening', function*(server) {
     sock.install(server, '/socket')
   })
-  
+
   var broadcasts = []
   var sock = shoe(function(stream) {
     var plex = dataplex()
@@ -73,7 +73,7 @@ function setup(plugin, imports, register) {
       .catch(function(er) { throw new er})
       return link
     })
-    
+
     plex.add('/document/:id/broadcast', function(opts) {
       var b = broadcast.document(opts.id, plex.user)
       stream.on('end', function() {
@@ -84,19 +84,21 @@ function setup(plugin, imports, register) {
 
     plex.add('/authenticate', function() {
       return through(function(chunk, enc, cb) {
+        var that = this
         co(function*() {
-          plex.user = yield auth.authenticate('token', chunk.toString(enc))
+          plex.user = yield auth.authenticate('token', chunk.toString('utf8'))
+          that.push(JSON.stringify(plex.user))
         })
         .then(cb)
         .catch(cb)
       })
     })
-    
-    
+
+
     co(function*() {
       yield hooks.callHook('shoe-interface:connect', plex)
     }).then(function() {})
   })
-  
+
   register()
 }
