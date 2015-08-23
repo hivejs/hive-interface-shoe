@@ -20,7 +20,6 @@ var shoe = require('shoe-bin')
   , co = require('co')
   , gulf = require('gulf')
   , through = require('through2')
-  , DuplexPassThrough = require('tmp-stream')
 
 module.exports = setup
 module.exports.consumes = ['hooks','sync', 'auth', 'broadcast']
