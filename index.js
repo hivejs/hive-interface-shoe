@@ -34,42 +34,63 @@ function setup(plugin, imports, register) {
     sock.install(server, '/socket')
   })
 
-  var broadcasts = []
   var sock = shoe(function(stream) {
     var plex = dataplex()
     stream.pipe(plex).pipe(stream)
 
     plex.add('/document/:id/sync', function(opts) {
-      var link = new gulf.Link
       // Set up link authorization
-      link.authorizeFn = function(msg, credentials, cb) {
-        co(function*() {
-          var user = yield auth.authenticate('token', credentials)
-            , allowed = false
-          switch(msg[0]) {
-            case 'edit':
-              allowed = yield auth.authorize(user, 'document:change', {document: opts.id})
-              break;
-            case 'ack':
-            case 'requestInit':
-              allowed = yield auth.authorize(user, 'document/snapshots:index', {document: opts.id})
-              break;
-          }
-          return allowed
-        })
-        .then(function(allowed) {
-          cb(null, allowed)
-        })
-        .catch(cb)
-      }
+      var link = new gulf.Link({
+        authorizeWrite: function(msg, credentials, cb) {
+          co(function*() {
+            var user = yield auth.authenticate('token', credentials)
+              , allowed = false
+            switch(msg[0]) {
+              case 'edit':
+                allowed = yield auth.authorize(user, 'document:write', {document: opts.id})
+                break;
+              case 'ack':
+              case 'requestInit':
+                allowed = yield auth.authorize(user, 'document:read', {document: opts.id})
+                break;
+            }
+            return allowed
+          })
+          .then(function(allowed) {
+            cb(null, allowed)
+          })
+          .catch(cb)
+        }
+      , authorizeRead:function(msg, credentials, cb) {
+          co(function*() {
+            var user = yield auth.authenticate('token', credentials)
+              , allowed = false
+            switch(msg[0]) {
+              case 'edit':
+                allowed = yield auth.authorize(user, 'document:read', {document: opts.id})
+                break;
+              case 'ack':
+              case 'init':
+                allowed = yield auth.authorize(user, 'document:read', {document: opts.id})
+                break;
+            }
+            return allowed
+          })
+          .then(function(allowed) {
+            cb(null, allowed)
+          })
+          .catch(cb)
+        }
+      })
+
       co(function*() {
-        if(!(yield auth.authorize(plex.user, 'document/snapshots:index', {document: opts.id}))) return
         // load document and add slave link
         var doc = yield sync.getDocument(opts.id)
-        doc.attachSlaveLink(link)
+        doc.attachslaveLink(link)
       })
       .then(function() {})
-      .catch(function(er) { throw new er})
+      .catch(function(er) { throw er})
+
       return link
     })
 

@@ -10,7 +10,7 @@
   , "co": "4.x"
   },
   "peerDependencies": {
-    "gulf": "1.x"
+    "gulf": "2.x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
