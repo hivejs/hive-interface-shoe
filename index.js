@@ -47,7 +47,7 @@ function setup(plugin, imports, register) {
               , allowed = false
             switch(msg[0]) {
               case 'edit':
-                allowed = yield auth.authorize(user, 'document:write', {document: opts.id})
+                allowed = yield auth.authorize(user, 'document:change', {document: opts.id})
                 break;
               case 'ack':
               case 'requestInit':
