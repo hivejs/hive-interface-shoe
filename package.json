@@ -1,13 +1,13 @@
 {
   "name": "hive-interface-shoe",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Hive.js shoe server interface",
   "main": "index.js",
   "dependencies": {
-    "shoe-bin": "1.x"
-  , "dataplex": "3.x"
-  , "through2": "2.x"
-  , "co": "4.x"
+    "shoe-bin": "1.x",
+    "dataplex": "3.x",
+    "through2": "2.x",
+    "co": "4.x"
   },
   "peerDependencies": {
     "gulf": "2.x"
@@ -24,7 +24,9 @@
     "hive.js"
   ],
   "author": "Marcel Klehr <mklehr@gmx.net>",
-  "license": {"license": "GPL-3.0"},
+  "license": {
+    "license": "GPL-3.0"
+  },
   "bugs": {
     "url": "https://github.com/hivejs/hive-interface-shoe/issues"
   },
