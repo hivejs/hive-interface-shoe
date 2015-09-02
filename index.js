@@ -86,10 +86,9 @@ function setup(plugin, imports, register) {
       co(function*() {
         // load document and add slave link
         var doc = yield sync.getDocument(opts.id)
-        doc.attachslaveLink(link)
+        doc.attachSlaveLink(link)
       })
-      .then(function() {})
-      .catch(function(er) { throw er})
+      .then(function() {}, function(er) { console.log(er.stack || er)})
 
       return link
     })
