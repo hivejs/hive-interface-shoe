@@ -105,8 +105,11 @@ function setup(plugin, imports, register) {
       return through(function(chunk, enc, cb) {
         var that = this
         co(function*() {
-          plex.user = yield auth.authenticate('token', chunk.toString('utf8'))
-          that.push(JSON.stringify(plex.user))
+          try {
+            plex.user = yield auth.authenticate('token', chunk.toString('utf8'))
+            if(plex.user) return that.push(JSON.stringify({authenticated: true}))
+          }catch(e) { }
+          that.push(JSON.stringify({authenticated: false }))
         })
         .then(cb)
         .catch(cb)
