@@ -41,17 +41,26 @@ function setup(plugin, imports, register) {
     plex.add('/document/:id/sync', function(opts) {
       // Set up link authorization
       var link = new gulf.Link({
-        authorizeWrite: function(msg, credentials, cb) {
+        authenticate: function(credentials, cb) {
           co(function*() {
-            var user = yield auth.authenticate('token', credentials)
-              , allowed = false
+            return yield auth.authenticate('token', credentials)
+          })
+          .then((user) => {
+            cb(null, user.id)
+          })
+          .catch(cb)
+        }
+      , authorizeWrite: function(msg, user, cb) {
+          co(function*() {
+            if(!plex.user) return false
+            var allowed = false
             switch(msg[0]) {
               case 'edit':
-                allowed = yield auth.authorize(user, 'document:change', {document: opts.id})
+                allowed = yield auth.authorize(plex.user, 'document:change', {document: opts.id})
                 break;
               case 'ack':
               case 'requestInit':
-                allowed = yield auth.authorize(user, 'document:read', {document: opts.id})
+                allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
                 break;
             }
             return allowed
@@ -61,17 +70,17 @@ function setup(plugin, imports, register) {
           })
           .catch(cb)
         }
-      , authorizeRead:function(msg, credentials, cb) {
+      , authorizeRead:function(msg, user, cb) {
           co(function*() {
-            var user = yield auth.authenticate('token', credentials)
-              , allowed = false
+            if(!plex.user) return false
+            var allowed = false
             switch(msg[0]) {
               case 'edit':
-                allowed = yield auth.authorize(user, 'document:read', {document: opts.id})
+                allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
                 break;
               case 'ack':
               case 'init':
-                allowed = yield auth.authorize(user, 'document:read', {document: opts.id})
+                allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
                 break;
             }
             return allowed
