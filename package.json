@@ -1,6 +1,6 @@
 {
   "name": "hive-interface-shoe",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Hive.js shoe server interface",
   "main": "index.js",
   "dependencies": {
@@ -10,7 +10,7 @@
     "co": "4.x"
   },
   "peerDependencies": {
-    "gulf": "3.x"
+    "gulf": "4.x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
