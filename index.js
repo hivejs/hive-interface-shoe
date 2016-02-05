@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-var shoe = require('shoe-bin')
+var shoe = require('shoe2')
   , dataplex = require('dataplex')
   , co = require('co')
   , gulf = require('gulf')

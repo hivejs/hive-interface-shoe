@@ -4,7 +4,7 @@
   "description": "Hive.js shoe server interface",
   "main": "index.js",
   "dependencies": {
-    "shoe-bin": "1.x",
+    "shoe2": "1.x",
     "dataplex": "3.x",
     "through2": "2.x",
     "co": "4.x"
