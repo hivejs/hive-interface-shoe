@@ -22,19 +22,21 @@ var Primus = require('primus')
   , through = require('through2')
 
 module.exports = setup
-module.exports.consumes = ['hooks','sync', 'auth', 'broadcast']
+module.exports.consumes = ['hooks','sync', 'auth', 'broadcast', 'config']
 
 function setup(plugin, imports, register) {
   var hooks = imports.hooks
     , sync = imports.sync
     , auth = imports.auth
     , broadcast = imports.broadcast
+    , config = imports.config
 
   hooks.on('http:listening', function*(server) {
     var primus = new Primus(server, {
       pathname:'/stream'
     , authorization: null
     , parser: 'binary'
+    , transformer: config.get('interfaceStream:transport')
     })
 
     primus.use('client-side-binary-converter', {
