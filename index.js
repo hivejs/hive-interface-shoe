@@ -124,7 +124,7 @@ function setup(plugin, imports, register) {
 
       plex.add('/document/:id/broadcast', function(opts) {
         var b = broadcast.document(opts.id, plex.user)
-        stream.on('close', function() {
+        stream.on('end', function() {
           b.emit('close')
         })
         return b
