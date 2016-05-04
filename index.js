@@ -59,90 +59,90 @@ function setup(plugin, imports, register) {
       stream.pipe(plex).pipe(stream)
 
       plex.add('/document/:id/sync', function(opts) {
-	// Set up link authorization
-	var link = new gulf.Link({
-	  authenticate: function(credentials, cb) {
-	    co(function*() {
-	      return yield auth.authenticate('token', credentials)
-	    })
-	    .then((user) => {
-	      cb(null, user.id)
-	    })
-	    .catch(cb)
-	  }
-	, authorizeWrite: function(msg, user, cb) {
-	    co(function*() {
-	      if(!plex.user) return false
-	      var allowed = false
-	      switch(msg[0]) {
-		case 'edit':
-		  allowed = yield auth.authorize(plex.user, 'document:change', {document: opts.id})
-		  break;
-		case 'ack':
-		case 'requestInit':
-		  allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
-		  break;
-	      }
-	      return allowed
-	    })
-	    .then(function(allowed) {
-	      cb(null, allowed)
-	    })
-	    .catch(cb)
-	  }
-	, authorizeRead:function(msg, user, cb) {
-	    co(function*() {
-	      if(!plex.user) return false
-	      var allowed = false
-	      switch(msg[0]) {
-		case 'edit':
-		  allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
-		  break;
-		case 'ack':
-		case 'init':
-		  allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
-		  break;
-	      }
-	      return allowed
-	    })
-	    .then(function(allowed) {
-	      cb(null, allowed)
-	    })
-	    .catch(cb)
-	  }
-	})
+        // Set up link authorization
+        var link = new gulf.Link({
+          authenticate: function(credentials, cb) {
+            co(function*() {
+              return yield auth.authenticate('token', credentials)
+            })
+            .then((user) => {
+              cb(null, user.id)
+            })
+            .catch(cb)
+          }
+        , authorizeWrite: function(msg, user, cb) {
+            co(function*() {
+              if(!plex.user) return false
+              var allowed = false
+              switch(msg[0]) {
+          case 'edit':
+            allowed = yield auth.authorize(plex.user, 'document:change', {document: opts.id})
+            break;
+          case 'ack':
+          case 'requestInit':
+            allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
+            break;
+              }
+              return allowed
+            })
+            .then(function(allowed) {
+              cb(null, allowed)
+            })
+            .catch(cb)
+          }
+        , authorizeRead:function(msg, user, cb) {
+            co(function*() {
+              if(!plex.user) return false
+              var allowed = false
+              switch(msg[0]) {
+          case 'edit':
+            allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
+            break;
+          case 'ack':
+          case 'init':
+            allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
+            break;
+              }
+              return allowed
+            })
+            .then(function(allowed) {
+              cb(null, allowed)
+            })
+            .catch(cb)
+          }
+        })
 
-	co(function*() {
-	  // load document and add slave link
-	  var doc = yield sync.getDocument(opts.id)
-	  doc.attachSlaveLink(link)
-	})
-	.then(function() {}, function(er) { console.log(er.stack || er)})
+        co(function*() {
+          // load document and add slave link
+          var doc = yield sync.getDocument(opts.id)
+          doc.attachSlaveLink(link)
+        })
+        .then(function() {}, function(er) { console.log(er.stack || er)})
 
-	return link
+        return link
       })
 
       plex.add('/document/:id/broadcast', function(opts) {
-	var b = broadcast.document(opts.id, plex.user)
-	stream.on('close', function() {
-	  b.emit('close')
-	})
-	return b
+        var b = broadcast.document(opts.id, plex.user)
+        stream.on('close', function() {
+          b.emit('close')
+        })
+        return b
       })
 
       plex.add('/authenticate', function() {
-	return through(function(chunk, enc, cb) {
-	  var that = this
-	  co(function*() {
-	    try {
-	      plex.user = yield auth.authenticate('token', chunk.toString('utf8'))
-	      if(plex.user) return that.push(JSON.stringify({authenticated: true}))
-	    }catch(e) { }
-	    that.push(JSON.stringify({authenticated: false }))
-	  })
-	  .then(cb)
-	  .catch(cb)
-	})
+        return through(function(chunk, enc, cb) {
+          var that = this
+          co(function*() {
+            try {
+              plex.user = yield auth.authenticate('token', chunk.toString('utf8'))
+              if(plex.user) return that.push(JSON.stringify({authenticated: true}))
+            }catch(e) { }
+            that.push(JSON.stringify({authenticated: false }))
+          })
+          .then(cb)
+          .catch(cb)
+        })
       })
 
 
