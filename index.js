@@ -22,6 +22,7 @@ var Primus = require('primus')
 
 module.exports = setup
 module.exports.consumes = ['hooks','http','sync', 'auth', 'broadcast', 'config']
+module.exports.provides = ['interfaceStream']
 
 function setup(plugin, imports, register) {
   var hooks = imports.hooks
