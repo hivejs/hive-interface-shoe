@@ -32,7 +32,7 @@ function setup(plugin, imports, register) {
     , broadcast = imports.broadcast
     , config = imports.config
 
-  var primus = new Primus(server, {
+  var primus = new Primus(http.server, {
     pathname:'/stream'
   , authorization: null
   , parser: 'binary'
