@@ -1,6 +1,6 @@
 {
   "name": "hive-interface-stream",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Hive.js web stream server interface",
   "main": "index.js",
   "dependencies": {
