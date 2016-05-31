@@ -78,13 +78,13 @@ function setup(plugin, imports, register) {
             if(!plex.user) return false
             var allowed = false
             switch(msg[0]) {
-        case 'edit':
-          allowed = yield auth.authorize(plex.user, 'document:change', {document: opts.id})
-          break;
-        case 'ack':
-        case 'requestInit':
-          allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
-          break;
+            case 'edit':
+              allowed = yield auth.authorize(plex.user, 'document:change', {id: opts.id})
+              break;
+            case 'ack':
+            case 'requestInit':
+              allowed = yield auth.authorize(plex.user, 'document:read', {id: opts.id})
+              break;
             }
             return allowed
           })
@@ -98,13 +98,13 @@ function setup(plugin, imports, register) {
             if(!plex.user) return false
             var allowed = false
             switch(msg[0]) {
-        case 'edit':
-          allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
-          break;
-        case 'ack':
-        case 'init':
-          allowed = yield auth.authorize(plex.user, 'document:read', {document: opts.id})
-          break;
+            case 'edit':
+              allowed = yield auth.authorize(plex.user, 'document:read', {id: opts.id})
+              break;
+            case 'ack':
+            case 'init':
+              allowed = yield auth.authorize(plex.user, 'document:read', {id: opts.id})
+              break;
             }
             return allowed
           })
