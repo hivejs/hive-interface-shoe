@@ -122,6 +122,7 @@ function setup(plugin, imports, register) {
       })
       .then(function() {}, function(er) { console.log(er.stack || er)})
 
+      stream.on('end', () => link.end())
       return link
     })
 
