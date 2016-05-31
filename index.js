@@ -32,6 +32,9 @@ function setup(plugin, imports, register) {
     , broadcast = imports.broadcast
     , config = imports.config
 
+  // Hack, because primus and the router don't know about each other
+  http.router.all('/stream/*', function*(){this.respond=false})
+
   var primus = new Primus(http.server, {
     pathname:'/stream'
   , authorization: null
